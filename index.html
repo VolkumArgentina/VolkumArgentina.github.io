@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volkum | Technology & Creative Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="resources/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .hero-bg {
+            background-color: #0a0a0a;
+            position: relative;
+            overflow: hidden;
+        }
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: pan 120s linear infinite;
+        }
+        @keyframes pan {
+            0% { background-position: 0 0; }
+            100% { background-position: 1000px 500px; }
+        }
+        .glow-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 20;
+            width: 32px;
+            height: 32px;
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, rgba(220, 38, 38, 0) 70%);
+            pointer-events: none;
+            transition: transform 0.1s ease-out;
+        }
+        .section-title {
+            background: -webkit-linear-gradient(45deg, #f87171, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background-color: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            border-color: #ef4444;
+            transform: translateY(-5px) scale(1.02);
+        }
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tag {
+            background-color: #1e293b;
+            color: #94a3b8;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .cta-button {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease-in-out;
+            z-index: -1;
+        }
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #0a0a0a;
+            border: 1px solid #334155;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 600px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #334155;
+            border-radius: 50%;
+            border-top: 4px solid #ef4444;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Matrix Effect Canvas */
+        .matrix-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Mouse Follow Glow Effect -->
+    <div id="glow" class="glow-effect"></div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-slate-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tighter">
+                <a href="#hero"><span class="text-red-500">Volkum</span> Developers</a>
+            </h1>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#services" class="hover:text-red-500 transition-colors">Services</a>
+                <a href="#portfolio" class="hover:text-red-500 transition-colors">Portfolio</a>
+                <a href="#expertise" class="hover:text-red-500 transition-colors">Expertise</a>
+                <a href="#contact" class="hover:text-red-500 transition-colors">Contact</a>
+            </nav>
+            <a href="#contact" class="hidden md:block bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 cta-button">
+                Get in Touch
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main id="hero" class="hero-bg pt-32 pb-20">
+        <canvas class="matrix-canvas" id="hero-matrix"></canvas>
+        <div class="grid-pattern"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-5xl md:text-7xl font-black mb-4 tracking-tighter fade-in">
+                Transforming Ideas into
+                <br />
+                <span class="section-title">Robust Digital Products.</span>
+            </h2>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8 fade-in" style="transition-delay: 200ms;">
+                Volkum is a technology and creative studio delivering tailor-made digital solutions. We combine technical expertise, creativity, and a business focus to bring your vision to life.
+            </p>
+            <div class="fade-in" style="transition-delay: 400ms;">
+                 <a href="#portfolio" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg text-lg transition-all duration-300 cta-button inline-block">
+                    Explore Our Work
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Services Section -->
+    <section id="services" class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold tracking-tighter section-title">Our Core Services</h2>
+                <p class="text-slate-400 mt-2">Agile & flexible solutions for every digital need.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Card 1 -->
+                <div class="card p-8 rounded-xl fade-in">
+                    <div class="text-red-500 mb-4">
+                        <i class="fa fa-3x fa-mobile" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">Web, Desktop & Mobile</h3>
+                    <p class="text-slate-400">Custom applications built from the ground up to meet your unique business requirements and user needs.</p>
+                </div>
+                <!-- Service Card 2 -->
+                <div class="card p-8 rounded-xl fade-in" style="transition-delay: 100ms;">
+                    <div class="text-red-500 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1l4 4-4 4"/><path d="M21 6H3"/><path d="M7 21.9l-4-4 4-4"/><path d="M3 18h18"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">System Migrations & APIs</h3>
+                    <p class="text-slate-400">Seamlessly migrate legacy systems and integrate powerful APIs to modernize your infrastructure and unlock new capabilities.</p>
+                </div>
+                <!-- Service Card 3 -->
+                <div class="card p-8 rounded-xl fade-in" style="transition-delay: 200ms;">
+                    <div class="text-red-500 mb-4">
+                        <i class="fa fa-3x fa-cloud" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-2">AWS Cloud Deployments</h3>
+                    <p class="text-slate-400">Leverage the power of Amazon Web Services for scalable, secure, and reliable hosting and infrastructure solutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parallax Divider -->
+    <div class="py-40 parallax-bg" style="background-image: url(resources/images/1920x1080.jpg);">
+        <div class="container mx-auto px-6 text-center relative z-10 bg-black/50 py-10 rounded-xl backdrop-blur-sm">
+             <h3 class="text-3xl font-bold text-white tracking-tight">Flexible Model, Focused Results.</h3>
+             <p class="text-slate-300 mt-2 max-w-2xl mx-auto">Our network of collaborators joins according to project size, ensuring you always have the right team for the job.</p>
+        </div>
+    </div>
+
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-black">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold tracking-tighter section-title">Selected Works</h2>
+                <p class="text-slate-400 mt-2">Proven success across diverse sectors.</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Project 1 -->
+                <div class="card rounded-xl overflow-hidden fade-in">
+                    <img src="https://placehold.co/800x600/1e293b/94a3b8?text=Healthcare+System" alt="Healthcare System" class="w-full h-64 object-cover">
+                    <div class="p-8">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag">Healthcare</span>
+                            <span class="tag">Network Implementation</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Hospital Network System</h3>
+                        <p class="text-slate-400">A comprehensive system for the healthcare sector, resulting in high client satisfaction and improved operational efficiency.</p>
+                    </div>
+                </div>
+                <!-- Project 2 -->
+                <div class="card rounded-xl overflow-hidden fade-in" style="transition-delay: 100ms;">
+                    <img src="https://placehold.co/800x600/1e293b/94a3b8?text=Credilan" alt="Credilan" class="w-full h-64 object-cover">
+                    <div class="p-8">
+                         <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag">FinTech</span>
+                            <span class="tag">Loan Management</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Credilan</h3>
+                        <p class="text-slate-400">A robust loan management system designed for scalability and security in the financial services industry.</p>
+                    </div>
+                </div>
+                <!-- Project 3 -->
+                <div class="card rounded-xl overflow-hidden fade-in">
+                    <img src="https://placehold.co/800x600/1e293b/94a3b8?text=Compydent" alt="Compydent" class="w-full h-64 object-cover">
+                    <div class="p-8">
+                         <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag">Dental</span>
+                            <span class="tag">Management Platform</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Compydent</h3>
+                        <p class="text-slate-400">An all-in-one dental management platform to streamline appointments, patient records, and billing processes.</p>
+                    </div>
+                </div>
+                 <!-- Project 4 -->
+                <div class="card rounded-xl overflow-hidden fade-in" style="transition-delay: 100ms;">
+                    <img src="https://placehold.co/800x600/1e293b/94a3b8?text=Portfolio+Projects" alt="Portfolio Projects" class="w-full h-64 object-cover">
+                    <div class="p-8">
+                         <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag">E-commerce</span>
+                             <span class="tag">Nutrition</span>
+                            <span class="tag">Unity Games</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">Diverse Portfolio Projects</h3>
+                        <p class="text-slate-400">Including a dealership portal, streaming platform, nutrition app with recipe tracking, and Unity mini-games.</p>
+                    </div>
+                </div>
+            </div>
+             <!-- Confidential Projects -->
+            <div class="mt-16 text-center card p-8 rounded-xl fade-in max-w-4xl mx-auto">
+                <h3 class="text-2xl font-bold section-title">Confidential & Closed-Source</h3>
+                <p class="text-slate-400 mt-4">We've also developed proprietary trading and automation tools. While the source code is private for strategic reasons, we are happy to provide watermarked screenshots and technical presentations upon request to showcase our capabilities in high-stakes environments.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section id="expertise" class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold tracking-tighter section-title">Beyond the Code</h2>
+                <p class="text-slate-400 mt-2">A holistic approach to digital success.</p>
+            </div>
+            <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="fade-in">
+                    <div class="bg-slate-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
+                        <i class="fa fa-2x fa-paint-brush text-red-500" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="font-bold text-lg">Graphic Design</h4>
+                </div>
+                <div class="fade-in" style="transition-delay: 100ms;">
+                    <div class="bg-slate-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.1 5.4c-.5.3-1.3.3-1.8 0L2 7"/></svg>
+                    </div>
+                    <h4 class="font-bold text-lg">Multimedia & SEO</h4>
+                </div>
+                <div class="fade-in" style="transition-delay: 200ms;">
+                   <div class="bg-slate-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
+                        <i class="fa fa-2x fa-bullhorn text-red-500" aria-hidden="true"></i>
+                   </div>
+                    <h4 class="font-bold text-lg">Ads Campaigns Mgmt.</h4>
+                </div>
+                 <div class="fade-in" style="transition-delay: 300ms;">
+                    <div class="bg-slate-800 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h4 class="font-bold text-lg">Community Mgmt.</h4>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 relative overflow-hidden">
+        <canvas class="matrix-canvas" id="contact-matrix"></canvas>
+        <div class="grid-pattern"></div>
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <h2 class="text-4xl font-bold tracking-tighter section-title">Have a project in mind?</h2>
+            <p class="text-slate-400 mt-4 max-w-2xl mx-auto">Let's connect and discuss how we can turn your idea into a reality. We can provide demos, technical documentation, and direct access to our work samples.</p>
+            <div class="mt-8 flex flex-wrap gap-4 justify-center">
+                <a href="mailto:fp.developersa@gmail.com" class="bg-red-600 hover:bg-red-500 text-white font-bold py-6 px-12 rounded-lg text-xl transition-all duration-300 cta-button inline-flex items-center justify-center w-[350px] h-[70px]">
+                    fp.developersa@gmail.com
+                </a>
+                <a href="https://wa.me/543876286438" class="bg-red-600 hover:bg-red-500 text-white font-bold py-6 px-12 rounded-lg text-xl transition-all duration-300 cta-button inline-flex items-center justify-center w-[350px] h-[70px] space-x-3">
+                    <i class="fa fa-2x fa-whatsapp" aria-hidden="true"></i>
+                    <p class="m-0">+54 9 387 628-6438</p>
+                </a>
+            </div>
+            <p class="text-sm text-slate-500 mt-6">While we don't have a public website to keep costs low, our work speaks for itself. <br>Check our Facebook page for verified samples!</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-6">
+        <div class="container mx-auto px-6 text-center text-slate-500">
+            <p>&copy; 2025 Volkum. All rights reserved. Built with passion and code.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mouse follow glow effect
+        const glow = document.getElementById('glow');
+        document.addEventListener('mousemove', (e) => {
+            window.requestAnimationFrame(() => {
+                glow.style.transform = `translate(${e.clientX - 16}px, ${e.clientY - 16}px)`;
+            });
+        });
+
+        // Simple fade-in animation on scroll
+        const faders = document.querySelectorAll('.fade-in');
+        const appearOptions = {
+            threshold: 0.2,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    return;
+                } else {
+                    entry.target.classList.add('visible');
+                    appearOnScroll.unobserve(entry.target);
+                }
+            });
+        }, appearOptions);
+
+        faders.forEach(fader => {
+            appearOnScroll.observe(fader);
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // --- Matrix Rain Effect ---
+        const setupMatrix = (canvasId) => {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            let w, h, columns, drops;
+
+            const init = () => {
+                const container = canvas.parentElement;
+                w = container.offsetWidth;
+                h = container.offsetHeight;
+                canvas.width = w;
+                canvas.height = h;
+
+                const fontSize = 16;
+                columns = Math.floor(w / fontSize);
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = 1;
+                }
+                ctx.font = `${fontSize}px monospace`;
+            }
+
+            const draw = () => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.fillStyle = '#991b1b'; // Dark red for the rain
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = String.fromCharCode(0x30A0 + Math.random() * 96); // Katakana characters
+                    const x = i * 16;
+                    const y = drops[i] * 16;
+                    ctx.fillText(text, x, y);
+
+                    if (y > h && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+            
+            init();
+            const intervalId = setInterval(draw, 33);
+            
+            // Re-initialize on window resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                 clearTimeout(resizeTimeout);
+                 resizeTimeout = setTimeout(init, 100);
+            });
+
+            return intervalId;
+        };
+        
+        let heroMatrixInterval = setupMatrix('hero-matrix');
+        let contactMatrixInterval = setupMatrix('contact-matrix');
+
+    </script>
+</body>
+</html>
